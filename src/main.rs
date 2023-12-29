@@ -1,4 +1,8 @@
-use std::{fs::remove_file, path::Path, process::Command};
+use std::{
+    fs::{copy, remove_file},
+    path::Path,
+    process::Command,
+};
 
 use lofty::{Accessor, Probe, Tag, TagExt, TagType, TaggedFileExt};
 
@@ -16,10 +20,12 @@ pub fn write_tag(dest: &Path) {
 fn main() {
     let _ = remove_file("test.m4a");
     Command::new("afconvert")
-        .args(["-d", "aac", "-f", "m4af", "test.flac", "test.m4a"])
+        .args(["-d", "aac", "-f", "m4af", "test.flac", "encoded.m4a"])
         .output()
         .expect("couldn't encode file");
-    println!("encoded file");
-    write_tag(Path::new("test.m4a"));
-    println!("wrote tag");
+    println!("encoded to encoded.m4a");
+    copy("encoded.m4a", "tagged.m4a").expect("copy failed");
+    println!("copied to tagged.m4a");
+    write_tag(Path::new("tagged.m4a"));
+    println!("wrote tag to tagged.m4a");
 }
